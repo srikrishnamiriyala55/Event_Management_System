@@ -1,0 +1,38 @@
+{
+  "pages": 81,
+  "all_java_listings_complete": true,
+  "files": {
+    "AppDao.java": true,
+    "Dao.java": true,
+    "DatabaseSetup.java": true,
+    "Event.java": true,
+    "ParticipantEventRegistration.java": true,
+    "RegistrationRecord.java": true,
+    "User.java": true,
+    "EmailService.java": true,
+    "AppContextListener.java": true,
+    "AuthFilter.java": true,
+    "DashboardServlet.java": true,
+    "EventImageServlet.java": true,
+    "EventServlet.java": true,
+    "Login.java": true,
+    "LogoutServlet.java": true,
+    "OtpServlet.java": true,
+    "ProfilePhotoServlet.java": true,
+    "RegisterServlet.java": true,
+    "RegistrationEmailOtpServlet.java": true,
+    "RegistrationServlet.java": true,
+    "ReportServlet.java": true,
+    "PasswordUtil.java": true
+  },
+  "pdf_fonts_and_sizes": {
+    "('BCDEEE+TimesNewRomanPSMT', 12.0)": 100355,
+    "('BCDFEE+TimesNewRomanPS-BoldMT', 16.0)": 233,
+    "('BCDFEE+TimesNewRomanPS-BoldMT', 14.0)": 843,
+    "('BCDFEE+TimesNewRomanPS-BoldMT', 12.0)": 981,
+    "('BCDGEE+TimesNewRomanPSMT', 12.0)": 238,
+    "('BCDEEE+TimesNewRomanPSMT', 14.0)": 11
+  },
+  "horizontal_overflow": [],
+  "reference_unchanged": true
+}
