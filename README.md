@@ -473,31 +473,17 @@ Event/
 |-- build/
 |   `-- classes/                                # Retained Eclipse/legacy compiled output
 |
-`-- target/                                     # Maven output and document preparation artifacts
+`-- target/                                     # Maven build and deployment output
     |-- campus-events.war                       # Deployable application archive for Tomcat 9
     |-- campus-events/                          # Exploded WAR with views, assets, classes, and dependency JARs
     |-- classes/                                # Compiled application Java classes
-    |-- test-classes/                           # Compiled test output directory
-    |-- generated-sources/                      # Generated main-source output
-    |-- generated-test-sources/                 # Generated test-source output
     |-- jspc/                                   # Generated JSP compilation and verification output
     |-- m2e-wtp/                                # Eclipse Maven web deployment resources
     |-- maven-archiver/                          # Maven archive metadata
-    |-- maven-status/                            # Maven compiler execution metadata
-    |-- docx-render/                             # Preview images and PDF for the description document
-    |-- template-qa/                             # Rendered reference-template previews
-    |-- project-report-qa-v1/                   # Initial project-report preview and layout checks
-    |-- project-report-qa-final/                # Final project-report previews and layout checks
-    |-- artifact.md                             # Document template layout and preservation contract
-    |-- build_template_report.py                # Builds the template-based Word project report
-    |-- render_project_report.ps1               # Refreshes Word fields and renders report previews
-    |-- report_contact_sheets.py                # Groups rendered pages into review sheets
-    |-- report_manifest.json                    # Report source-file inventory and contents bookmarks
-    |-- report_verification.json                # Report font, source-listing, and overflow check results
-    `-- verify_template_report.py               # Checks report completeness, fonts, and page boundaries
+    `-- maven-status/                            # Maven compiler execution metadata
 ```
 
-`src/main/resources` and `src/test/resources` are also configured as optional source paths in `.classpath`; they do not currently contain application configuration files. Generated folders may vary after rebuilding. Keep the application source in `src/` and use `target/campus-events.war` for deployment.
+`src/main/resources` and `src/test/resources` are also configured as optional source paths in `.classpath`; they do not currently contain application configuration files. Empty `target/generated-sources`, `target/generated-test-sources`, and `target/test-classes` folders were removed; Maven or Eclipse can recreate them when needed. Generated folders may vary after rebuilding. Keep the application source in `src/` and use `target/campus-events.war` for deployment.
 
 ## Known Limitations
 
