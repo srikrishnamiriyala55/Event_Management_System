@@ -2,11 +2,9 @@ package com.servlets;
 
 import com.dao.AppDao;
 import com.model.User;
-import com.service.EmailService;
 import com.util.PasswordUtil;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +18,6 @@ public class Login extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private static final int AUTHENTICATED_SESSION_SECONDS = 30 * 60;
-    private static final int OTP_SESSION_SECONDS = 5 * 60;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -69,11 +66,6 @@ public class Login extends HttpServlet {
                 return;
             }
 
-            if ("ORGANIZER".equals(user.role())) {
-                beginOrganizerOtpLogin(request, response, user);
-                return;
-            }
-
             createAuthenticatedSession(request, user);
             response.sendRedirect(request.getContextPath() + "/dashboard");
         } catch (Exception exception) {
@@ -83,27 +75,6 @@ public class Login extends HttpServlet {
                     response,
                     "Login is temporarily unavailable. Please try again shortly.");
         }
-    }
-
-    private void beginOrganizerOtpLogin(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            User organizer) throws Exception {
-
-        String otp = String.format(
-                "%06d",
-                new SecureRandom().nextInt(1_000_000));
-
-        HttpSession pendingSession = replaceSession(request);
-        pendingSession.setAttribute("loginOtp", otp);
-        pendingSession.setAttribute("pendingUser", organizer);
-        pendingSession.setAttribute(
-                "otpExpiresAt",
-                System.currentTimeMillis() + OTP_SESSION_SECONDS * 1_000L);
-        pendingSession.setMaxInactiveInterval(OTP_SESSION_SECONDS);
-
-        EmailService.sendOrganizerLoginOtp(organizer, otp);
-        response.sendRedirect(request.getContextPath() + "/verify-otp");
     }
 
     private void createAuthenticatedSession(HttpServletRequest request, User user) {

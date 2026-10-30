@@ -32,7 +32,6 @@ public class EventImageServlet extends HttpServlet {
             String imageType = appDao.eventImageType(eventId);
             response.setContentType(imageType == null ? "image/jpeg" : imageType);
             response.setContentLength(image.length);
-            response.setHeader("Cache-Control", "private, max-age=3600");
             response.getOutputStream().write(image);
         } catch (NumberFormatException exception) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event ID.");

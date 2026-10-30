@@ -1,0 +1,5 @@
+# Keep local Eclipse and Maven output, but do not add new generated files to Git.
+/target/
+/build/
+__pycache__/
+*.pyc

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -121,9 +122,18 @@ public class EventServlet extends HttpServlet {
                 String category = required(request, "category", "Category");
                 String department = required(request, "department", "Department");
 
-                if (capacity < 1 || fee < 0) {
+                if (capacity < 1 || !Double.isFinite(fee) || fee < 0 || fee > 99_999_999.99) {
                     throw new IllegalArgumentException(
-                            "Capacity must be at least 1 and fee cannot be negative.");
+                            "Capacity must be at least 1 and fee must be between 0 and 99999999.99.");
+                }
+                Event existing = id == 0 ? null : appDao.event(id);
+                if (id > 0 && existing == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Event not found.");
+                    return;
+                }
+                if (existing != null && capacity < existing.registeredCount()) {
+                    throw new IllegalArgumentException(
+                            "Capacity cannot be less than the registered participant count.");
                 }
                 if (!CATEGORIES.contains(category)) {
                     throw new IllegalArgumentException("Select a valid event category.");
@@ -154,6 +164,10 @@ public class EventServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/events");
         } catch (SecurityException exception) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } catch (DateTimeParseException exception) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event date or time.");
+        } catch (IllegalStateException exception) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Event image must not exceed 5 MB.");
         } catch (NumberFormatException exception) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event data.");
         } catch (IllegalArgumentException exception) {
@@ -176,6 +190,10 @@ public class EventServlet extends HttpServlet {
         String value = request.getParameter(parameter);
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(label + " is required.");
+        }
+        if (("title".equals(parameter) || "venue".equals(parameter))
+                && value.trim().length() > 150) {
+            throw new IllegalArgumentException(label + " must not exceed 150 characters.");
         }
         return value.trim();
     }

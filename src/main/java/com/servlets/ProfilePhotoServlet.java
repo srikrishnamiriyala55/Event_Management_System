@@ -43,7 +43,6 @@ public class ProfilePhotoServlet extends HttpServlet {
             String contentType = appDao.profilePhotoType(rollNumber);
             response.setContentType(contentType == null ? "image/jpeg" : contentType);
             response.setContentLength(profilePhoto.length);
-            response.setHeader("Cache-Control", "private, max-age=300");
             response.getOutputStream().write(profilePhoto);
         } catch (Exception exception) {
             getServletContext().log("Profile photo load failed", exception);

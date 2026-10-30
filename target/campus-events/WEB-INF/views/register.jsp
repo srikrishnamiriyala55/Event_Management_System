@@ -1,3 +1,4 @@
+<%@ page import="com.util.Html" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!doctype html>
 <html>
@@ -11,12 +12,11 @@
 <main class="auth wide">
     <h1>Participant Registration</h1>
     <p class="muted">
-        Verify your email first. The Submit Registration button is enabled only
-        after successful OTP verification.
+        Complete all fields to create your participant account.
     </p>
 
     <% if (request.getAttribute("errorMessage") != null) { %>
-        <div class="message error"><%=request.getAttribute("errorMessage")%></div>
+        <div class="message error"><%=Html.escape(request.getAttribute("errorMessage"))%></div>
     <% } %>
     <div class="message error client-errors" hidden></div>
 
@@ -35,21 +35,6 @@
             <div>
                 <label for="email">Email</label>
                 <input id="email" type="email" name="email" required>
-                <div class="actions compact-actions">
-                    <button id="sendOtp" class="btn secondary" type="button">Send OTP</button>
-                </div>
-            </div>
-            <div>
-                <label for="emailOtp">Email OTP</label>
-                <input id="emailOtp" inputmode="numeric" pattern="[0-9]{6}"
-                        maxlength="6" disabled>
-                <div class="actions compact-actions">
-                    <button id="verifyOtp" class="btn secondary" type="button" disabled>
-                        Verify OTP
-                    </button>
-                </div>
-                <div id="otpMessage" class="message otp-message" role="status"
-                        aria-live="polite" hidden></div>
             </div>
 
             <div>
@@ -73,7 +58,7 @@
                             "RK COLLEGE OF ENGINEERING",
                             "MIC College of Technology",
                             "Amrita Sai Institute of Science and Technology"}) { %>
-                        <option value="<%=college%>"><%=college%></option>
+                        <option value="<%=Html.escape(college)%>"><%=Html.escape(college)%></option>
                     <% } %>
                 </select>
             </div>
@@ -85,7 +70,7 @@
                     <% for (String department : new String[]{
                             "CSE", "IT", "AI&DS", "CSM", "EEE", "ECE",
                             "MECH", "CIVIL", "ASE"}) { %>
-                        <option><%=department%></option>
+                        <option><%=Html.escape(department)%></option>
                     <% } %>
                 </select>
             </div>
@@ -146,7 +131,7 @@
             </label>
         </div>
         <div class="actions">
-            <button id="submitRegistration" class="btn" type="submit" disabled>
+            <button id="submitRegistration" class="btn" type="submit">
                 Submit Registration
             </button>
             <button class="btn secondary" type="reset">Reset</button>
@@ -158,99 +143,19 @@
 <script>
 (() => {
     const form = document.getElementById('registrationForm');
-    const email = document.getElementById('email');
-    const otp = document.getElementById('emailOtp');
-    const send = document.getElementById('sendOtp');
-    const verify = document.getElementById('verifyOtp');
-    const submit = document.getElementById('submitRegistration');
-    const message = document.getElementById('otpMessage');
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirmPassword');
     const showPasswords = document.getElementById('showRegistrationPasswords');
-    let verifiedEmail = '';
-
-    async function callOtpService(action) {
-        const body = new URLSearchParams({
-            action,
-            email: email.value.trim(),
-            otp: otp.value.trim()
-        });
-        const response = await fetch('registration-email-otp', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body
-        });
-        return response.json();
-    }
-
-    function showMessage(text, isSuccess) {
-        message.hidden = false;
-        message.className = 'message otp-message' + (isSuccess ? ' success' : ' error');
-        message.textContent = text;
-    }
-
-    send.addEventListener('click', async () => {
-        submit.disabled = true;
-        verifiedEmail = '';
-        showMessage('Sending OTP...', true);
-
-        try {
-            const result = await callOtpService('send');
-            showMessage(result.message, result.success);
-            if (result.success) {
-                otp.disabled = false;
-                verify.disabled = false;
-                email.readOnly = true;
-                otp.focus();
-            }
-        } catch (error) {
-            showMessage('Unable to send OTP. Please try again.', false);
-        }
-    });
-
-    verify.addEventListener('click', async () => {
-        if (!/^[0-9]{6}$/.test(otp.value.trim())) {
-            showMessage('Enter the six-digit OTP sent to your email.', false);
-            return;
-        }
-
-        showMessage('Verifying OTP...', true);
-        try {
-            const result = await callOtpService('verify');
-            showMessage(result.message, result.success);
-            if (result.success) {
-                verifiedEmail = email.value.trim().toLowerCase();
-                submit.disabled = false;
-                otp.disabled = true;
-                verify.disabled = true;
-            }
-        } catch (error) {
-            showMessage('Unable to verify OTP. Please try again.', false);
-        }
-    });
-
     showPasswords.addEventListener('change', () => {
         const type = showPasswords.checked ? 'text' : 'password';
         password.type = type;
         confirmPassword.type = type;
     });
 
-    email.addEventListener('input', () => {
-        if (email.value.trim().toLowerCase() !== verifiedEmail) {
-            submit.disabled = true;
-        }
-    });
-
     form.addEventListener('reset', () => {
         setTimeout(() => {
-            email.readOnly = false;
-            otp.disabled = true;
-            verify.disabled = true;
-            submit.disabled = true;
             password.type = 'password';
             confirmPassword.type = 'password';
-            verifiedEmail = '';
-            message.hidden = true;
         }, 0);
     });
 })();

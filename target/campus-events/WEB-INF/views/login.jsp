@@ -1,3 +1,4 @@
+<%@ page import="com.util.Html" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!doctype html>
 <html>
@@ -23,10 +24,10 @@
     </div>
 
     <% if (request.getAttribute("statusMessage") != null) { %>
-        <div class="message"><%=request.getAttribute("statusMessage")%></div>
+        <div class="message"><%=Html.escape(request.getAttribute("statusMessage"))%></div>
     <% } %>
     <% if (request.getAttribute("errorMessage") != null) { %>
-        <div class="message error"><%=request.getAttribute("errorMessage")%></div>
+        <div class="message error"><%=Html.escape(request.getAttribute("errorMessage"))%></div>
     <% } %>
 
     <div class="message error client-errors" hidden></div>

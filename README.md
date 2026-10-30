@@ -1,6 +1,6 @@
 # Campus Event Management System
 
-A role-based, stateful campus event management web application built with JSP, Java Servlets, JDBC, MySQL, HTML, CSS, and JavaScript. It supports participant registration, email OTP verification, organizer OTP login, event CRUD operations, event registration, unique pass generation, profile photos, event images, and searchable registration reports.
+A role-based, stateful campus event management web application built with JSP, Java Servlets, JDBC, MySQL, HTML, CSS, and JavaScript. It supports participant registration, event CRUD operations, event registration, unique pass generation, profile photos, event images, and searchable registration reports.
 
 ## Current Status
 
@@ -9,7 +9,6 @@ A role-based, stateful campus event management web application built with JSP, J
 - MySQL tables and the default organizer are initialized automatically at startup.
 - Participant and organizer workflows are implemented with session-based access control.
 - Passwords are stored with BCrypt using cost factor 12.
-- Gmail SMTP sends OTP and registration confirmation emails.
 - Event cancellation and participant feedback are intentionally not included.
 
 ## Technology Stack
@@ -23,7 +22,6 @@ A role-based, stateful campus event management web application built with JSP, J
 | Password security | BCrypt with cost factor 12 |
 | Data access | JDBC with prepared statements |
 | Database | MySQL 8 or later |
-| Email | JavaMail with Gmail SMTP and TLS |
 | Runtime | Java 17 and Apache Tomcat 9 |
 | Build | Maven WAR |
 
@@ -32,7 +30,7 @@ A role-based, stateful campus event management web application built with JSP, J
 ### Participant
 
 - Registers through the public participant registration page.
-- Verifies the entered email address using an OTP before Submit is enabled.
+- Creates an account after validating all required registration details.
 - Uses the unique roll number as the login username.
 - Logs in with roll number and password.
 - Views counts for available and registered events.
@@ -47,7 +45,7 @@ A role-based, stateful campus event management web application built with JSP, J
 
 - Cannot register through the participant registration page.
 - Uses an organizer account created during database initialization.
-- Logs in with organizer ID and password, followed by email OTP verification.
+- Logs in directly with organizer ID and password.
 - Views total-event, active-event, and registration counts.
 - Views and filters all active and inactive events by category and department.
 - Creates, views, edits, and deletes events.
@@ -82,7 +80,7 @@ Password requirements:
 - At least one number
 - At least one special character
 
-The password fields appear together above the Show password checkbox. Registration submission is enabled only after successful email OTP verification.
+The password fields appear together above the Show password checkbox. Registration can be submitted after completing the required fields.
 
 ### Supported Departments
 
@@ -117,7 +115,7 @@ Descriptions appear only after selecting View. Back returns to the relevant even
 
 The application confirms that the authenticated user is a participant and that the event exists, is active, is still open, has capacity, and has not already been registered for by that participant.
 
-The mini-project simulates completed payment by storing `PAID`. A successful registration creates a unique pass ID, sends a professional HTML confirmation email, and redirects to Registered Events.
+The mini-project simulates completed payment by storing `PAID`. A successful registration creates a unique pass ID, and redirects to Registered Events.
 
 ## Database
 
@@ -180,26 +178,13 @@ The `(event_id, participant_id)` pair is unique. Deleting an event cascades to i
 The application is stateful:
 
 - A successful login stores the authenticated `User` in `HttpSession`.
-- Organizer authentication remains pending until OTP verification succeeds.
+- Both roles authenticate directly using their ID and password; login replaces the previous session.
 - `AuthFilter` protects dashboards, events, registrations, profiles, reports, images, and logout.
 - Servlets perform participant and organizer role checks.
 - Logout invalidates the session.
 - Protected responses disable browser caching.
 - JDBC operations use prepared statements.
 - Passwords use BCrypt cost factor 12.
-
-## Email Workflows
-
-Professional HTML email messages are sent for:
-
-- Participant registration email OTP
-- Participant account creation confirmation
-- Organizer login OTP
-- Event registration confirmation with payment and unique pass details
-
-Current SMTP defaults are Gmail at `smtp.gmail.com:587`, TLS enabled, with user `nitwg6@gmail.com`.
-
-The classroom Gmail app password is embedded in `EmailService` but is intentionally not repeated here. Remove or rotate it before sharing source code or the WAR, and move it to protected secret configuration before production use.
 
 ## URL Endpoints
 
@@ -221,17 +206,11 @@ http://localhost:8082/campus-events/login
 
 - **GET `/login`** — Public. Displays the login form; signed-in users go to their dashboard.
 
-- **POST `/login`** — Public. Checks the username and password; starts organizer email OTP when required.
-
-- **GET `/verify-otp`** — Pending organizer login. Displays the OTP verification form.
-
-- **POST `/verify-otp`** — Pending organizer login. Verifies the OTP and authenticates the organizer session.
+- **POST `/login`** — Public. Checks the ID and password and creates the authenticated session for either role.
 
 - **GET `/register`** — Public. Displays the participant registration form.
 
-- **POST `/register`** — Verified registration email required. Validates and creates a participant account.
-
-- **POST `/registration-email-otp`** — Public registration session. Sends or verifies the email OTP and returns a JSON status message.
+- **POST `/register`** — Public. Validates and creates a participant account.
 
 - **POST `/logout`** — Signed-in users. Invalidates the session and returns to login.
 
@@ -265,7 +244,7 @@ http://localhost:8082/campus-events/login
 
 - **GET `/assets/style.css`** — Public. Loads the application stylesheet.
 
-- **GET `/assets/validation.js`** — Public. Loads form validation, OTP interaction, and password controls.
+- **GET `/assets/validation.js`** — Public. Loads form validation and password controls.
 
 ### Filter and Action Parameters
 
@@ -301,14 +280,6 @@ http://localhost:8082/campus-events/login
 
   Parameter: `eventId`. Submits the selected event for participant registration.
 
-- **Send registration OTP — POST `/registration-email-otp`**
-
-  Parameters: `action=send`, `email`. Sends an OTP valid for five minutes.
-
-- **Verify registration OTP — POST `/registration-email-otp`**
-
-  Parameters: `action=verify`, `email`, `otp`. Verifies the OTP in the same browser session.
-
 Example filtered URLs:
 
 ```text
@@ -325,7 +296,6 @@ GET endpoints can be opened in the browser. POST endpoints are submitted through
 - Maven 3.9 or later
 - MySQL 8 or later
 - Apache Tomcat 9
-- Gmail SMTP access for live email delivery
 
 ## Configuration
 
@@ -337,17 +307,13 @@ GET endpoints can be opened in the browser. POST endpoints are submitted through
 | `DEFAULT_ORGANIZER_ID` | `ORG001` |
 | `DEFAULT_ORGANIZER_EMAIL` | Application seed default |
 | `DEFAULT_ORGANIZER_PASSWORD` | `Admin@123` |
-| `SMTP_HOST` | `smtp.gmail.com` |
-| `SMTP_PORT` | `587` |
-| `SMTP_USER` | `nitwg6@gmail.com` |
-| `SMTP_FROM` | Same as `SMTP_USER` |
 
 These defaults are for local classroom development. Change database and organizer credentials before shared deployment.
 
 ## Build and Deploy
 
 1. Start MySQL and confirm the configured account can create or use the `event` database.
-2. Configure database, organizer, and SMTP values in the Tomcat or Eclipse runtime.
+2. Configure database and organizer values in the Tomcat or Eclipse runtime.
 3. Build the WAR:
 
    ```bash
@@ -424,9 +390,6 @@ Event/
 |   |   |   |   |-- RegistrationRecord.java     # Participant information for organizer report rows
 |   |   |   |   `-- User.java                   # Account identity, role, and participant profile data
 |   |   |   |
-|   |   |   |-- service/
-|   |   |   |   `-- EmailService.java           # SMTP OTP, welcome, and registration receipt emails
-|   |   |   |
 |   |   |   |-- servlets/                       # HTTP controllers, authentication, and image responses
 |   |   |   |   |-- AppContextListener.java     # Database startup setup and shutdown resource cleanup
 |   |   |   |   |-- AuthFilter.java             # Authenticated route protection and cache-control headers
@@ -435,21 +398,20 @@ Event/
 |   |   |   |   |-- EventServlet.java           # Event details and organizer create, edit, and delete
 |   |   |   |   |-- Login.java                  # Credential checks and participant/organizer login flow
 |   |   |   |   |-- LogoutServlet.java          # Session invalidation and logout redirect
-|   |   |   |   |-- OtpServlet.java             # Organizer login OTP verification
 |   |   |   |   |-- ProfilePhotoServlet.java    # Streams authorized participant profile photos
 |   |   |   |   |-- RegisterServlet.java        # Participant validation and account creation
-|   |   |   |   |-- RegistrationEmailOtpServlet.java
-|   |   |   |   |                               # Sends and verifies participant registration email OTP
-|   |   |   |   |-- RegistrationServlet.java    # Event registration, receipt, and registered-events redirect
+|   |   |   |   |-- RegistrationServlet.java    # Event registration, pass generation, and registered-events redirect
+|   |   |   |   |-- RequestFilter.java          # UTF-8 requests, cache prevention, and response headers
 |   |   |   |   `-- ReportServlet.java          # Organizer registration search and report filters
 |   |   |   |
 |   |   |   `-- util/
+|   |   |       |-- Html.java                   # Escapes dynamic text and HTML attributes in JSP views
 |   |   |       `-- PasswordUtil.java           # BCrypt password hashing and checking with cost 12
 |   |   |
 |   |   `-- webapp/                             # Browser assets and server-rendered views
 |   |       |-- assets/
 |   |       |   |-- style.css                   # Responsive layout, forms, sidebars, cards, and dialogs
-|   |       |   `-- validation.js               # Browser validation, OTP interaction, and password controls
+|   |       |   `-- validation.js               # Browser validation and password controls
 |   |       |-- META-INF/
 |   |       |   `-- MANIFEST.MF                 # Web application archive manifest
 |   |       `-- WEB-INF/
@@ -458,10 +420,14 @@ Event/
 |   |               |-- event-form.jsp          # Organizer event form and participant event details
 |   |               |-- login.jsp               # Login form with password visibility and status messages
 |   |               |-- organizerdashboard.jsp  # Organizer summaries, events, reports, and profile
-|   |               |-- register.jsp            # Participant form, photo upload, and email verification
-|   |               |-- userdashboard.jsp       # Participant summaries, filtered events, passes, and profile
-|   |               `-- verify-otp.jsp          # Organizer email OTP verification form
+|   |               |-- register.jsp            # Participant form, photo upload, and input validation
+|   |               `-- userdashboard.jsp       # Participant summaries, filtered events, passes, and profile
 |   `-- test/                                   # Test source folders when generated or created by the IDE
+|
+|-- tests/                                      # Repeatable checks using a disposable MySQL database
+|   |-- run-workflow-check.ps1                  # Starts isolated Tomcat, runs checks, and removes test database
+|   |-- workflows.py                           # HTTP registration, roles, CRUD, filters, passes, and logout checks
+|   `-- DatabaseProbe.java                     # Confirms BCrypt cost 12 and safely cleans up test database
 |
 |-- docs/                                       # Application diagrams and Word reports
 |   |-- campus-event-architecture-a4.png         # A4 architecture diagram image
@@ -491,10 +457,20 @@ Event/
 - There is no public organizer registration.
 - Event cancellation and participant feedback are not included.
 - Password recovery is not implemented.
-- SMTP secret management requires production hardening.
 - Images are stored in MySQL rather than external object storage.
-- Automated Maven test coverage is not yet included.
+- HTTP regression checks are run separately from Maven using the script below.
 
 ## Verification
 
-The current source compiles and packages successfully with Maven. Participant and organizer workflows, unique constraints, filters, event navigation, session protection, BCrypt hashing, OTP handling, database initialization, event registration redirect, and project documentation have been reviewed against the current implementation.
+Build and check the application:
+
+```powershell
+mvn verify
+./tests/run-workflow-check.ps1
+```
+
+The workflow runner requires Python 3, JDK 17 or later, Tomcat 9, and a running local MySQL server. Set `DB_USER` and `DB_PASSWORD` if the development defaults do not match your setup. Use `-TomcatHome` to specify another Tomcat installation and `-Port` to select an unused test port.
+
+The runner starts an isolated Tomcat, creates a uniquely named `campus_events_qa_...` database, and runs 98 HTTP checks plus password-storage checks. It tests registration without verification, unique roll numbers/emails/phone numbers, exact password handling, both roles, event CRUD, uploads, category/department filters, combined report filters, unique passes, concurrent capacity limits, HTML escaping, Unicode text, and logout protection. Its final cleanup stops only its own server and drops only its disposable database. Existing application records are not modified. Logs remain under `target/workflow-check/`.
+
+Maven compilation/packaging and JavaScript syntax checks also pass. Payment remains a simulated `PAID` record. OTP verification and email delivery are no longer part of the application.

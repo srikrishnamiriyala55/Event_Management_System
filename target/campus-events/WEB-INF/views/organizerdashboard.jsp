@@ -1,3 +1,4 @@
+<%@ page import="com.util.Html" %>
 <%@ page import="java.util.*,com.model.*" contentType="text/html;charset=UTF-8" %>
 <%
     User user = (User) session.getAttribute("user");
@@ -40,7 +41,7 @@
 <header class="topbar organizer-topbar">
     <h1>Organizer Console</h1>
     <nav>
-        <span><%=user.fullName()%> · <%=user.rollNo()%></span>
+        <span><%=Html.escape(user.fullName())%> · <%=Html.escape(user.rollNo())%></span>
         <form class="inline" action="logout" method="post">
             <button class="btn secondary">Logout</button>
         </form>
@@ -52,38 +53,38 @@
         <a class="btn new-event-button" href="event">+ New Event</a>
         <div class="sidebar-title">Organizer Menu</div>
         <nav>
-            <a class="side-link <%= "dashboard".equals(activeSection) ? "active" : "" %>"
+            <a class="side-link <%=Html.escape("dashboard".equals(activeSection) ? "active" : "")%>"
                     href="dashboard">Dashboard</a>
-            <a class="side-link <%= "events".equals(activeSection) ? "active" : "" %>"
+            <a class="side-link <%=Html.escape("events".equals(activeSection) ? "active" : "")%>"
                     href="events">All Events</a>
-            <a class="side-link <%= "reports".equals(activeSection) ? "active" : "" %>"
+            <a class="side-link <%=Html.escape("reports".equals(activeSection) ? "active" : "")%>"
                     href="reports">Registration Reports</a>
-            <a class="side-link <%= "profile".equals(activeSection) ? "active" : "" %>"
+            <a class="side-link <%=Html.escape("profile".equals(activeSection) ? "active" : "")%>"
                     href="profile">Profile</a>
         </nav>
     </aside>
 
     <main class="participant-main">
-        <section class="dashboard-panel" <%= "dashboard".equals(activeSection) ? "" : "hidden" %>>
+        <section class="dashboard-panel" <%=Html.escape("dashboard".equals(activeSection) ? "" : "hidden")%>>
             <div class="page-heading">
                 <h2>Dashboard</h2>
                 <p class="muted">Monitor events and participant registrations.</p>
             </div>
             <div class="summary-cards organizer-summary-cards">
                 <article class="summary-card">
-                    <div class="summary-number"><%=events.size()%></div>
+                    <div class="summary-number"><%=Html.escape(events.size())%></div>
                     <h3>All events</h3>
                     <p>Total events created in the system.</p>
                     <a href="events">Click here</a>
                 </article>
                 <article class="summary-card active-summary">
-                    <div class="summary-number"><%=activeEventCount%></div>
+                    <div class="summary-number"><%=Html.escape(activeEventCount)%></div>
                     <h3>Active events</h3>
                     <p>Events currently enabled for registration.</p>
                     <a href="events">Click here</a>
                 </article>
                 <article class="summary-card registered-summary">
-                    <div class="summary-number"><%=totalRegistrationCount%></div>
+                    <div class="summary-number"><%=Html.escape(totalRegistrationCount)%></div>
                     <h3>Registrations</h3>
                     <p>Participants registered across all events.</p>
                     <a href="reports">View reports</a>
@@ -91,7 +92,7 @@
             </div>
         </section>
 
-        <section class="dashboard-panel" <%= "events".equals(activeSection) ? "" : "hidden" %>>
+        <section class="dashboard-panel" <%=Html.escape("events".equals(activeSection) ? "" : "hidden")%>>
             <div class="toolbar">
                 <div>
                     <h2>All Events</h2>
@@ -108,10 +109,10 @@
                         <% for (String category : new String[]{
                                 "Technical", "Cultural", "Sports",
                                 "Workshop", "Seminar"}) { %>
-                            <option value="<%=category%>"
-                                    <%=category.equals(request.getParameter("category"))
-                                            ? "selected" : ""%>>
-                                <%=category%>
+                            <option value="<%=Html.escape(category)%>"
+                                    <%=Html.escape(category.equals(request.getParameter("category"))
+                                            ? "selected" : "")%>>
+                                <%=Html.escape(category)%>
                             </option>
                         <% } %>
                     </select>
@@ -123,11 +124,11 @@
                         <% for (String department : new String[]{
                                 "CSE", "IT", "AI&DS", "CSM", "EEE", "ECE",
                                 "MECH", "CIVIL", "ASE"}) { %>
-                            <option value="<%=department%>"
-                                    <%=department.equals(
+                            <option value="<%=Html.escape(department)%>"
+                                    <%=Html.escape(department.equals(
                                             request.getParameter("department"))
-                                                    ? "selected" : ""%>>
-                                <%=department%>
+                                                    ? "selected" : "")%>>
+                                <%=Html.escape(department)%>
                             </option>
                         <% } %>
                     </select>
@@ -141,32 +142,32 @@
             <div class="cards">
                 <% for (Event event : events) { %>
                     <article class="card">
-                        <img src="<%=event.hasImage()
+                        <img src="<%=Html.escape(event.hasImage()
                                 ? "event-image?id=" + event.id()
-                                : "https://placehold.co/640x360/12355b/ffffff?text=Campus+Event"%>"
-                                alt="<%=event.title()%>">
+                                : "https://placehold.co/640x360/12355b/ffffff?text=Campus+Event")%>"
+                                alt="<%=Html.escape(event.title())%>">
                         <div class="card-body">
-                            <span class="badge <%=event.active()
-                                    ? "active-event-badge" : "inactive-event-badge"%>">
-                                <%=event.active() ? "Active" : "Inactive"%>
+                            <span class="badge <%=Html.escape(event.active()
+                                    ? "active-event-badge" : "inactive-event-badge")%>">
+                                <%=Html.escape(event.active() ? "Active" : "Inactive")%>
                             </span>
-                            <h3><%=event.title()%></h3>
+                            <h3><%=Html.escape(event.title())%></h3>
                             <div class="meta">
-                                <%=event.department()%> · <%=event.category()%><br>
-                                <%=event.date()%> · <%=event.venue()%><br>
-                                Registration closes: <%=event.registrationClosesAt()%><br>
-                                <strong><%=event.registeredCount()%></strong>
-                                / <%=event.capacity()%> registered
+                                <%=Html.escape(event.department())%> · <%=Html.escape(event.category())%><br>
+                                <%=Html.escape(event.date())%> · <%=Html.escape(event.venue())%><br>
+                                Registration closes: <%=Html.escape(event.registrationClosesAt())%><br>
+                                <strong><%=Html.escape(event.registeredCount())%></strong>
+                                / <%=Html.escape(event.capacity())%> registered
                             </div>
                             <div class="actions">
-                                <a class="btn" href="event?id=<%=event.id()%>">Edit / View</a>
-                                <a class="btn secondary" href="reports?eventId=<%=event.id()%>">
+                                <a class="btn" href="event?id=<%=Html.escape(event.id())%>">Edit / View</a>
+                                <a class="btn secondary" href="reports?eventId=<%=Html.escape(event.id())%>">
                                     Members
                                 </a>
                                 <form action="event" method="post"
                                         onsubmit="return confirm('Delete this event and its registrations?')">
                                     <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<%=event.id()%>">
+                                    <input type="hidden" name="id" value="<%=Html.escape(event.id())%>">
                                     <button class="btn danger">Delete</button>
                                 </form>
                             </div>
@@ -181,7 +182,7 @@
             </div>
         </section>
 
-        <section class="dashboard-panel" <%= "reports".equals(activeSection) ? "" : "hidden" %>>
+        <section class="dashboard-panel" <%=Html.escape("reports".equals(activeSection) ? "" : "hidden")%>>
             <div class="page-heading">
                 <h2>Registration Reports</h2>
                 <p class="muted">
@@ -193,8 +194,8 @@
                 <div>
                     <label for="search">Search</label>
                     <input id="search" name="search"
-                            value="<%=request.getParameter("search") == null
-                                    ? "" : request.getParameter("search")%>"
+                            value="<%=Html.escape(request.getParameter("search") == null
+                                    ? "" : request.getParameter("search"))%>"
                             placeholder="Name, roll, email, phone or pass ID">
                 </div>
                 <div>
@@ -202,11 +203,11 @@
                     <select id="eventId" name="eventId">
                         <option value="">All events</option>
                         <% for (Event event : events) { %>
-                            <option value="<%=event.id()%>"
-                                    <%=String.valueOf(event.id()).equals(
+                            <option value="<%=Html.escape(event.id())%>"
+                                    <%=Html.escape(String.valueOf(event.id()).equals(
                                             request.getParameter("eventId"))
-                                                    ? "selected" : ""%>>
-                                <%=event.title()%>
+                                                    ? "selected" : "")%>>
+                                <%=Html.escape(event.title())%>
                             </option>
                         <% } %>
                     </select>
@@ -216,10 +217,10 @@
                     <select id="collegeName" name="collegeName">
                         <option value="">All colleges</option>
                         <% for (String college : colleges) { %>
-                            <option value="<%=college%>"
-                                    <%=college.equals(request.getParameter("collegeName"))
-                                            ? "selected" : ""%>>
-                                <%=college%>
+                            <option value="<%=Html.escape(college)%>"
+                                    <%=Html.escape(college.equals(request.getParameter("collegeName"))
+                                            ? "selected" : "")%>>
+                                <%=Html.escape(college)%>
                             </option>
                         <% } %>
                     </select>
@@ -231,10 +232,10 @@
                         <% for (String department : new String[]{
                                 "CSE", "IT", "AI&DS", "CSM", "EEE", "ECE",
                                 "MECH", "CIVIL", "ASE"}) { %>
-                            <option value="<%=department%>"
-                                    <%=department.equals(request.getParameter("department"))
-                                            ? "selected" : ""%>>
-                                <%=department%>
+                            <option value="<%=Html.escape(department)%>"
+                                    <%=Html.escape(department.equals(request.getParameter("department"))
+                                            ? "selected" : "")%>>
+                                <%=Html.escape(department)%>
                             </option>
                         <% } %>
                     </select>
@@ -244,11 +245,11 @@
                     <select id="year" name="year">
                         <option value="">All years</option>
                         <% for (int year = 1; year <= 4; year++) { %>
-                            <option value="<%=year%>"
-                                    <%=String.valueOf(year).equals(
+                            <option value="<%=Html.escape(year)%>"
+                                    <%=Html.escape(String.valueOf(year).equals(
                                             request.getParameter("year"))
-                                                    ? "selected" : ""%>>
-                                <%=year%>
+                                                    ? "selected" : "")%>>
+                                <%=Html.escape(year)%>
                             </option>
                         <% } %>
                     </select>
@@ -260,7 +261,7 @@
             </form>
 
             <div class="report-summary">
-                <strong><%=records.size()%></strong> matching registrations
+                <strong><%=Html.escape(records.size())%></strong> matching registrations
             </div>
 
             <div class="table-wrap">
@@ -283,17 +284,17 @@
                     <tbody>
                         <% for (RegistrationRecord record : records) { %>
                             <tr>
-                                <td><%=record.eventTitle()%></td>
-                                <td><%=record.rollNo()%></td>
-                                <td><%=record.name()%></td>
-                                <td><%=record.email()%></td>
-                                <td><%=record.phoneNumber()%></td>
-                                <td><%=record.collegeName()%></td>
-                                <td><%=record.department()%></td>
-                                <td><%=record.year()%></td>
-                                <td><%=record.passId()%></td>
-                                <td><%=record.paymentStatus()%></td>
-                                <td><%=record.registeredAt()%></td>
+                                <td><%=Html.escape(record.eventTitle())%></td>
+                                <td><%=Html.escape(record.rollNo())%></td>
+                                <td><%=Html.escape(record.name())%></td>
+                                <td><%=Html.escape(record.email())%></td>
+                                <td><%=Html.escape(record.phoneNumber())%></td>
+                                <td><%=Html.escape(record.collegeName())%></td>
+                                <td><%=Html.escape(record.department())%></td>
+                                <td><%=Html.escape(record.year())%></td>
+                                <td><%=Html.escape(record.passId())%></td>
+                                <td><%=Html.escape(record.paymentStatus())%></td>
+                                <td><%=Html.escape(record.registeredAt())%></td>
                             </tr>
                         <% } %>
                         <% if (records.isEmpty()) { %>
@@ -308,20 +309,20 @@
             </div>
         </section>
 
-        <section class="dashboard-panel" <%= "profile".equals(activeSection) ? "" : "hidden" %>>
+        <section class="dashboard-panel" <%=Html.escape("profile".equals(activeSection) ? "" : "hidden")%>>
             <div class="page-heading">
                 <h2>Organizer Profile</h2>
                 <p class="muted">Account information for the current organizer.</p>
             </div>
             <article class="organizer-profile-card">
                 <div class="organizer-avatar" aria-hidden="true">
-                    <%=user.fullName() == null || user.fullName().isBlank()
-                            ? "?" : user.fullName().substring(0, 1).toUpperCase()%>
+                    <%=Html.escape(user.fullName() == null || user.fullName().isBlank()
+                            ? "?" : user.fullName().substring(0, 1).toUpperCase())%>
                 </div>
                 <dl class="details-list">
-                    <div><dt>Full name</dt><dd><%=user.fullName()%></dd></div>
-                    <div><dt>Organizer ID</dt><dd><%=user.rollNo()%></dd></div>
-                    <div><dt>Email</dt><dd><%=user.email()%></dd></div>
+                    <div><dt>Full name</dt><dd><%=Html.escape(user.fullName())%></dd></div>
+                    <div><dt>Organizer ID</dt><dd><%=Html.escape(user.rollNo())%></dd></div>
+                    <div><dt>Email</dt><dd><%=Html.escape(user.email())%></dd></div>
                     <div><dt>Role</dt><dd>Organizer</dd></div>
                 </dl>
             </article>

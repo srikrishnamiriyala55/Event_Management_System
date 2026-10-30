@@ -5,7 +5,6 @@ C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\model\Event.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\model\ParticipantEventRegistration.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\model\RegistrationRecord.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\model\User.java
-C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\service\EmailService.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\AppContextListener.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\AuthFilter.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\DashboardServlet.java
@@ -13,10 +12,10 @@ C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\EventImageServ
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\EventServlet.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\Login.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\LogoutServlet.java
-C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\OtpServlet.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\ProfilePhotoServlet.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\RegisterServlet.java
-C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\RegistrationEmailOtpServlet.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\RegistrationServlet.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\ReportServlet.java
+C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\servlets\RequestFilter.java
+C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\util\Html.java
 C:\Users\srikr\eclipse-workspace\Event\src\main\java\com\util\PasswordUtil.java

@@ -3,7 +3,6 @@ package com.servlets;
 import com.dao.AppDao;
 import com.model.Event;
 import com.model.User;
-import com.service.EmailService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -42,7 +41,6 @@ public class RegistrationServlet extends HttpServlet {
             }
 
             String passId = appDao.register(eventId, participant.rollNo());
-            sendConfirmationEmail(participant, event, passId);
 
             request.getSession().setAttribute(
                     "flash",
@@ -90,13 +88,4 @@ public class RegistrationServlet extends HttpServlet {
                 "Registration failed. Please try again.");
     }
 
-    private void sendConfirmationEmail(User participant, Event event, String passId) {
-        try {
-            EmailService.sendEventRegistrationReceipt(participant, event, passId);
-        } catch (Exception exception) {
-            getServletContext().log(
-                    "Event registration saved but confirmation email failed",
-                    exception);
-        }
-    }
 }

@@ -2,7 +2,6 @@ package com.servlets;
 
 import com.dao.AppDao;
 import com.model.User;
-import com.service.EmailService;
 import com.util.PasswordUtil;
 
 import java.io.IOException;
@@ -57,24 +56,12 @@ public class RegisterServlet extends HttpServlet {
 
         String rollNumber = normalize(request.getParameter("rollNo")).toUpperCase();
         String email = normalize(request.getParameter("email")).toLowerCase();
-        String password = normalize(request.getParameter("password"));
-
-        HttpSession session = request.getSession(false);
-        String verifiedEmail = session == null
-                ? null
-                : (String) session.getAttribute("verifiedRegistrationEmail");
-
-        if (verifiedEmail == null || !verifiedEmail.equals(email)) {
-            request.setAttribute(
-                    "errorMessage",
-                    "Verify this email address with OTP before submitting.");
-            request.getRequestDispatcher("/WEB-INF/views/register.jsp")
-                    .forward(request, response);
-            return;
+        String password = request.getParameter("password");
+        if (password == null) {
+            password = "";
         }
 
         AppDao appDao = new AppDao();
-        boolean participantCreated = false;
 
         try {
             validateRegistration(request, rollNumber, password);
@@ -99,18 +86,9 @@ public class RegisterServlet extends HttpServlet {
                     profilePhoto,
                     profilePhotoPart.getContentType());
 
-            participantCreated = true;
-            session.removeAttribute("verifiedRegistrationEmail");
-
-            sendRegistrationConfirmation(participant);
-
             response.sendRedirect(
                     request.getContextPath() + "/login?status=registered");
         } catch (Exception exception) {
-            if (participantCreated) {
-                removeIncompleteParticipant(appDao, rollNumber);
-            }
-
             getServletContext().log("Participant registration failed", exception);
             request.setAttribute("errorMessage", registrationErrorMessage(exception));
             request.getRequestDispatcher("/WEB-INF/views/register.jsp")
@@ -131,6 +109,10 @@ public class RegisterServlet extends HttpServlet {
         requireText(request, "fullName", "Full name");
         requireText(request, "rollNo", "Roll number");
         requireText(request, "email", "Email");
+        String email = normalize(request.getParameter("email"));
+        if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("Enter a valid email address.");
+        }
         requireText(request, "phoneNumber", "Phone number");
         requireText(request, "collegeName", "College name");
         requireText(request, "department", "Department");
@@ -197,7 +179,7 @@ public class RegisterServlet extends HttpServlet {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(label + " is required.");
         }
-        return value.trim();
+        return value;
     }
 
     private String normalize(String value) {
@@ -236,26 +218,6 @@ public class RegisterServlet extends HttpServlet {
                 Integer.parseInt(request.getParameter("year")),
                 request.getParameter("gender").trim(),
                 request.getParameter("address").trim());
-    }
-
-    private void sendRegistrationConfirmation(User participant) {
-        try {
-            EmailService.sendParticipantWelcome(participant);
-        } catch (Exception mailException) {
-            getServletContext().log(
-                    "Registration saved but confirmation email failed",
-                    mailException);
-        }
-    }
-
-    private void removeIncompleteParticipant(AppDao appDao, String rollNumber) {
-        try {
-            appDao.deleteUser(rollNumber);
-        } catch (Exception cleanupException) {
-            getServletContext().log(
-                    "Unable to remove incomplete participant",
-                    cleanupException);
-        }
     }
 
     private String registrationErrorMessage(Exception exception) {
